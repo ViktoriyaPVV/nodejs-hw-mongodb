@@ -1,11 +1,4 @@
-// import mongoose from "mongoose";
 
-// const DB = "mongodb+srv://contacts1:5NisVt7vw9Vk@qg@contacts.9ol77.mongodb.net/?retryWrites=true&w=majority&appName=Contacts";
-// // "mongodb+srv://contacts1:<db_password>@contacts.9ol77.mongodb.net/?retryWrites=true&w=majority&appName=Contacts"
-
-// export function initMongoConnection() {
-//   return mongoose.connect(DB);
-// }
 import mongoose from 'mongoose';
 import getEnvVar from '../utils/getEnvVar.js';
 
