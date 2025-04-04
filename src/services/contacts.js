@@ -49,20 +49,22 @@ export const createContact = async (body) => {
 export const updateContact = async (
   contactId,
   payload,
-  options = {},
+  // options = {},
   userId,
 ) => {
-  const { value } = await ContactsCollection.findOneAndUpdate(
+  const contact = await ContactsCollection.findOneAndUpdate(
     { _id: contactId, userId },
     payload,
     {
       new: true,
-      includeResultMetadata: true,
-      ...options,
+      // includeResultMetadata: true,
     },
   );
+  console.log('contactId:', contactId);
+  console.log('userId:', userId);
+  console.log('payload:', payload);
 
-  return value;
+  return contact;
 };
 
 export const deleteContact = async (contactId, userId) => {
