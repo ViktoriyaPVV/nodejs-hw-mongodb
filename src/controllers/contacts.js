@@ -84,15 +84,28 @@ export const createNewContactController = async (req, res, next) => {
 export const updateContactController = async (req, res, next) => {
   const { contactId } = req.params;
   const { _id: userId } = req.user;
+  const photo = req.file;
 
-  const contact = await updateContact(contactId, req.body, userId);
-  if (!contact) {
-    throw createHttpError(404, 'Contact not found');
+  let photoUrl;
+
+  if (photo) {
+    if (getEnvVar('UPLOAD_TO_CLOUDINARY') === 'true') {
+      photoUrl = await saveFileToCloudinary(photo);
+    } else {
+      photoUrl = await saveFileToUploadDir(photo);
+    }
   }
+  const contact = await updateContact(
+    contactId,
+    { ...req.body, photo: photoUrl },
+    userId,
+  );
 
-  res.status(200).json({
+  if (!contact) throw createHttpError(404, 'Contact not found');
+
+  res.json({
     status: 200,
-    message: `Successfully found contact with id ${contactId}!`,
+    message: 'Successfully found contact with id ${contactId}!',
     data: contact,
   });
 };
