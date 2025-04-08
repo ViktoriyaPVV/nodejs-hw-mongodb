@@ -1,3 +1,5 @@
+// import * as fs from 'node:fs/promises';
+// import path from 'path';
 import createHttpError from 'http-errors';
 import {
   getAllContacts,
@@ -10,6 +12,9 @@ import {
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseSortParams } from '../utils/parseSortParams.js';
 import { parseFilterParams } from '../utils/parseFilterParams.js';
+import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
+import getEnvVar from '../utils/getEnvVar.js';
+import { saveFileToUploadDir } from '../utils/saveFileToUploadDir.js';
 
 export const getContactsController = async (req, res) => {
   const { page, perPage } = parsePaginationParams(req.query);
@@ -52,14 +57,27 @@ export const getContactIdController = async (req, res, next) => {
   });
 };
 export const createNewContactController = async (req, res, next) => {
-  const contact = req.body;
-  const { _id: userId } = req.user;
-  const newContact = await createContact({ ...contact, userId });
+  const userId = req.user._id;
+  const photo = req.file;
 
+  let photoUrl;
+
+  if (photo) {
+    if (getEnvVar('UPLOAD_TO_CLOUDINARY') === 'true') {
+      photoUrl = await saveFileToCloudinary(photo);
+    } else {
+      photoUrl = await saveFileToUploadDir(photo);
+    }
+  }
+  const contact = await createContact({
+    ...req.body,
+    photo: photoUrl,
+    userId,
+  });
   res.status(201).json({
     status: 201,
     message: 'Successfully created a contact!',
-    data: newContact,
+    data: contact,
   });
 };
 
